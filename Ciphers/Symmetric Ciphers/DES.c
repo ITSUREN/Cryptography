@@ -51,6 +51,17 @@ int IP[8][8]= {
     { 63, 55, 47, 39, 31, 23, 15, 7}
 };
 
+int IPInv[8][8]={
+    {40, 8, 48, 16, 56, 24, 64, 32},
+    {39, 7, 47, 15, 55, 23, 63, 31},
+    {38, 6, 46, 14, 54, 22, 62, 30},
+    {37, 5, 45, 13, 53, 21, 61, 29},
+    {36, 4, 44, 12, 52, 20, 60, 28},
+    {35, 3, 43, 11, 51, 19, 59, 27},
+    {34, 2, 42, 10, 50, 18, 58, 26},
+    {33, 1, 41, 9, 49, 17, 57, 25}
+};
+
 int EM[8][6]= {
     { 32,  1,  2,  3,  4,  5},
     {  4,  5,  6,  7,  8,  9},
@@ -60,6 +71,17 @@ int EM[8][6]= {
     { 20, 21, 22, 23, 24, 25},
     { 24, 25, 26, 27, 28, 29},
     { 28, 29, 30, 31, 32,  1}
+};
+
+int PM[8][4]={
+    {16, 7, 20, 21},
+    {29, 12, 28, 17},
+    {1, 15, 23, 26},
+    {5, 18, 31, 10},
+    {2, 8, 24, 14},
+    {32, 27, 3, 9},
+    {19, 13, 30, 6},
+    {22, 11, 4, 25}
 };
 
 sBox sBoxes[8] = {
@@ -136,15 +158,19 @@ sBox sBoxes[8] = {
     },
 };
 
-void permuteMatrixInitializer(permuteMatrix *PC1M, permuteMatrix *PC2M, permuteMatrix *IP, permuteMatrix *EM) {
+void permuteMatrixInitializer(permuteMatrix *PC1M, permuteMatrix *PC2M, permuteMatrix *IPM, permuteMatrix *IPInvM, permuteMatrix *EM, permuteMatrix *PMM) {
     memcpy(&(PC1M->PC), &PC1, sizeof(PC1));
     PC1M->Column=7; PC2M->Row=8;
     memcpy(&(PC2M->PC), &PC2, sizeof(PC2));
     PC2M->Column=8; PC2M->Row=6;
-    memcpy(&(IP->PC), &IP, sizeof(IP));
-    IP->Column=8; IP->Row=8;
+    memcpy(&(IPM->PC), &IP, sizeof(IP));
+    IPM->Column=8; IPM->Row=8;
+    memcpy(&(IPInvM->PC), &IPInv, sizeof(IPInv));
+    IPInvM->Column=8; IPInvM->Row=8;
     memcpy(&(EM->PC), &EM, sizeof(EM));
     EM->Column=6; EM->Row=8;
+    memcpy(&(PMM->PC), &PM, sizeof(PM));
+    PMM->Column=4; PMM->Row=8;
 }
 
 int rotationSchedule[16] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
@@ -224,8 +250,8 @@ void plainTextToMessage(message *output, char *plainText) {
 }
 
 int main() {
-    permuteMatrix PC1M,PC2M, IP, EM;
-    permuteMatrixInitializer(&PC1M, &PC2M, &IP, &EM);
+    permuteMatrix PC1M,PC2M, IPM, EMM, IPInvM, PMM;
+    permuteMatrixInitializer(&PC1M, &PC2M, &IPM, &IPInvM, &EMM, &PMM);
 
     char keyWord[MAXKEYLENGTH]="123A";
     message *output;
