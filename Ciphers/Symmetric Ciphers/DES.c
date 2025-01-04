@@ -62,6 +62,21 @@ void messageMerger(char *input1, char *input2, char *output) {
     strcat(output, input2);
 }
 
+void leftShiftCircular(char *input, int times) {
+    for (int i=0; i<times; i++) {
+        char hold = input[0];
+        for (int i=0; i < strlen(input)-1; i++) {
+            input[i] = input[i+1];
+        }
+        input[strlen(input)-1]=hold;
+    }
+}
+
+void leftShiftCircularDual(char *input1, char *input2, int times) {
+    leftShiftCircular(input1, times);
+    leftShiftCircular(input2,times);
+}
+
 int main() {
     permuteMatrix PC1M, PC2M, IPM, EMM, IPInvM, PMM;
     permuteMatrixInitializer(&PC1M, &PC2M, &IPM, &IPInvM, &EMM, &PMM);
@@ -82,11 +97,14 @@ int main() {
     printf("K+=");
     stringPrinter(binaryKeyplus->msg, 7);
 
-    char C[ROUNDS][28], D[ROUNDS][28], entire[56];
+    char C[ROUNDS][28], D[ROUNDS][28], keys[ROUNDS][56], entire[56];
     messageSplitter(binaryKeyplus->msg, C[0], D[0]);
     printf("\n C= %s \n D= %s \n", C[0], D[0]);
     messageMerger(C[0], D[0], entire);
     printf("\n merged: %s", entire);
+
+    leftShiftCircularDual(C[0], D[0],2);
+    printf("\n Cleft: %s\n Dleft: %s", C[0], D[0]);
 
     return 0;
 }
