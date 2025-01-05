@@ -11,11 +11,6 @@
 #define MAXMATSIZE 8
 
 typedef struct {
-    char *msg;
-    int pointer;
-} message;
-
-typedef struct {
     int PC[MAXMATSIZE][MAXMATSIZE];
     int Row; 
     int Column;
@@ -67,16 +62,11 @@ void PCCopier(permuteMatrix *PM, int source[][MAXMATSIZE]) {
     }
 }
 
-void primaryKeyAppender(message *output, char *binaryGroup) {
+void primaryKeyAppender(char *output, char *binaryGroup) {
+    int pointer = strlen(output);
     for (int i = 0; i < 4; i++) {
-        output->msg[output->pointer] = binaryGroup[i];
-        output->pointer++;
+        output[pointer] = binaryGroup[i];
+        pointer++;
     }
-    output->msg[output->pointer] = '\0'; 
+    output[pointer] = '\0'; 
 }
-
-void messageInitializer(message *msg) {
-    msg->msg = malloc(64*sizeof(int)+1);
-    msg->pointer = 0;
-}
-
