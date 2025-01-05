@@ -1,12 +1,3 @@
-#ifndef STDIO_H
-#define STDIO_H
-    #include <stdio.h>
-#endif
-#ifndef STDLIB_H
-#define STDLIB_H
-    #include <stdlib.h>
-#endif
-
 #define MAXKEYLENGTH 64
 #define MAXMATSIZE 8
 
@@ -39,19 +30,19 @@ char *hexToBinGroup(char hexKey) {
         case 'E': return "1110";
         case 'F': return "1111";
         default:
-            printf("\n[ERR 01] hexToBin function edge case encountered.");
+            fprintf(stderr, "[ERR 01] Invalid hex key: %c\n", hexKey);
             return NULL;
     }
 }
 
-void stringPrinter(char *string, int delimeter) {
-    for (int i=0; i<strlen(string); i++) {
-        if (i%delimeter==0) {
+void stringPrinter(char *string, int delimiter) {
+    if (string == NULL) return;
+    for (int i = 0; i < strlen(string); i++) {
+        if (delimiter != 0 && i % delimiter == 0) {
             printf(" ");
         }
         printf("%c", string[i]);
     }
-    printf("\n");
 }
 
 void PCCopier(permuteMatrix *PM, int source[][MAXMATSIZE]) {
@@ -63,10 +54,10 @@ void PCCopier(permuteMatrix *PM, int source[][MAXMATSIZE]) {
 }
 
 void primaryKeyAppender(char *output, char *binaryGroup) {
+    if (output == NULL || binaryGroup == NULL) return;
     int pointer = strlen(output);
     for (int i = 0; i < 4; i++) {
-        output[pointer] = binaryGroup[i];
-        pointer++;
+        output[pointer++] = binaryGroup[i];
     }
     output[pointer] = '\0'; 
 }
