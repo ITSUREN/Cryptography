@@ -3,27 +3,17 @@
 #include <string.h>
 #include "../Modules/DESModules.c"
 #include "../Modules/DESData.c"
+//#include "DESModules.h"
+//#include "DESData.h"
 
 #define ROUNDS 16
 
-void permuteMatrixInitializer(permuteMatrix *PC1M, permuteMatrix *PC2M, permuteMatrix *IPM, permuteMatrix *IPInvM, permuteMatrix *EMM, permuteMatrix *PMM) {
+void keypermuteMatrixInitializer(permuteMatrix *PC1M, permuteMatrix *PC2M) {
     PC1M->Column = 7; PC1M->Row = 8;
     PCCopier(PC1M, PC1);
 
-    PC2M->Column = 8; PC2M->Row = 6;
+    PC2M->Column = 6; PC2M->Row = 8;
     PCCopier(PC2M, PC2);
-
-    IPM->Column = 8; IPM->Row = 8;
-    PCCopier(IPM, IP);
-
-    IPInvM->Column = 8; IPInvM->Row = 8;
-    PCCopier(IPInvM, IPInv);
-
-    EMM->Column = 6; EMM->Row = 8;
-    PCCopier(EMM, EM);
-    
-    PMM->Column = 4; PMM->Row = 8;
-    PCCopier(PMM, PM);
 }
 
 void plainTextToMessage(char *output, char *plainText) {
@@ -86,29 +76,34 @@ void scheduledLeftShifts(char C[ROUNDS][29], char D[ROUNDS][29]) {
         strcpy(C[i], C[i-1]); 
         strcpy(D[i], D[i-1]);
         leftShiftCircularDual(C[i], D[i],rotationSchedule[i-1]);
-        printf("\n C%-2d: %s\n D%-2d: %s",i, C[i],i, D[i]);
+        printf("\n C%-2d: ", i);
+        stringPrinter(C[i],0);
+        printf("\n D%-2d: ", i);
+        stringPrinter(D[i], 0);
     }
 }
 
-void keyGenerator(char C[ROUNDS][29], char D[ROUNDS][29],char keys[ROUNDS][57]) {
+void permuteShiftedKeys(char C[ROUNDS][29], char D[ROUNDS][29],char keys[ROUNDS][57], permuteMatrix *PC2M) {
     char temp[ROUNDS][57];
     for (int i=1; i <= ROUNDS; i++) {
         messageMerger(C[i], D[i], keys[i-1]);
-        printf("\n ShiftedMerged[%-2d]: %s",i, keys[i-1]);
+        permutedString(keys[i-1], temp[i-1], *PC2M);
+        strcpy(keys[i-1], temp[i-1]);
+        printf("\n Keys[%-2d]:",i);
+        stringPrinter(keys[i-1], 6);
     }
 }
 
-int main() {
-    permuteMatrix PC1M, PC2M, IPM, EMM, IPInvM, PMM;
-    permuteMatrixInitializer(&PC1M, &PC2M, &IPM, &IPInvM, &EMM, &PMM);
+void keyGenerator(char keyWords12[MAXKEYLENGTH]) {
+    permuteMatrix PC1M, PC2M;
+    keypermuteMatrixInitializer(&PC1M, &PC2M);
 
-    char keyWord1[MAXKEYLENGTH] = "133457799BBCDEF1";
+    char loadBearingVariablethatisNeverusedandnamedoesntmatter12342312jsdfsdfnasfb[MAXKEYLENGTH]; // LOAD BEARING VARIABLE DONOT DELETE, I CAN"T SEEM TO DELETE IT, SEND HELP
 
     // Allocate memory for the message structure
-    char *binaryKey;
-    char *binaryKeyplus;
+    char *binaryKey=malloc(MAXKEYLENGTH * sizeof(char)), *binaryKeyplus=malloc(MAXKEYLENGTH * sizeof(char));
 
-    plainTextToMessage(binaryKey, keyWord1);
+    plainTextToMessage(binaryKey, keyWords12);
     printf("K=");
     stringPrinter(binaryKey, 8);
     
@@ -116,11 +111,21 @@ int main() {
     printf("K+=");
     stringPrinter(binaryKeyplus, 7);
 
-    char C[ROUNDS][29], D[ROUNDS][29], keys[ROUNDS][57], entire[57];
+    char C[ROUNDS][29], D[ROUNDS][29], keys[ROUNDS][57];
     messageSplitter(binaryKeyplus, C[0], D[0]);
-    printf("\n C0= %s \n D0= %s", C[0], D[0]);
+    printf("\n C0 : %s \n D0 : %s", C[0], D[0]);
 
     scheduledLeftShifts(C, D);
-    keyGenerator(C, D, keys);
+    permuteShiftedKeys(C, D, keys, &PC2M);
+
+    // Freeing 
+    free(binaryKey);
+    free(binaryKeyplus);
+}
+
+int main() {
+    char keyWord123[MAXKEYLENGTH];
+    strcpy(keyWord123,"133457799BBCDEF1");
+    keyGenerator(keyWord123); 
     return 0;
 }
