@@ -3,8 +3,6 @@
 #include <string.h>
 #include "../Modules/DESModules.c"
 #include "../Modules/DESData.c"
-//#include "DESModules.h"
-//#include "DESData.h"
 
 #define ROUNDS 16
 
@@ -71,52 +69,80 @@ void leftShiftCircularDual(char *input1, char *input2, int times) {
     leftShiftCircular(input2,times);
 }
 
-void scheduledLeftShifts(char C[ROUNDS][29], char D[ROUNDS][29]) {
+void scheduledLeftShifts(char C[ROUNDS+1][29], char D[ROUNDS+1][29], int verbose) {
+    // Print the First Key that does not require permuting
+        if (verbose) {
+            printf("\n C0 : %s \n D0 : %s", C[0], D[0]);
+        }
+        
     for (int i=1; i <= ROUNDS; i++) {
         strcpy(C[i], C[i-1]); 
         strcpy(D[i], D[i-1]);
         leftShiftCircularDual(C[i], D[i],rotationSchedule[i-1]);
-        printf("\n C%-2d: ", i);
-        stringPrinter(C[i],0);
-        printf("\n D%-2d: ", i);
-        stringPrinter(D[i], 0);
+
+        // To print the split Key
+            if (verbose) {
+                printf("\n C%-2d: ", i);
+                stringPrinter(C[i],0);
+                printf("\n D%-2d: ", i);
+                stringPrinter(D[i], 0);
+            }
     }
+    // Give a new line if verbose
+        verbose? printf("\n"): (void)0;
 }
 
-void permuteShiftedKeys(char C[ROUNDS][29], char D[ROUNDS][29],char keys[ROUNDS][57], permuteMatrix *PC2M) {
-    char temp[ROUNDS][57];
+void permuteShiftedKeys(char C[ROUNDS+1][29], char D[ROUNDS+1][29],char keys[ROUNDS+1][57], permuteMatrix *PC2M, int verbose) {
+    char temp[ROUNDS+1][57];
     for (int i=1; i <= ROUNDS; i++) {
         messageMerger(C[i], D[i], keys[i-1]);
+
         permutedString(keys[i-1], temp[i-1], *PC2M);
+
         strcpy(keys[i-1], temp[i-1]);
-        printf("\n Keys[%-2d]:",i);
-        stringPrinter(keys[i-1], 6);
+
+        //if (verbose) {
+            printf("Keys[%-2d]:",i);
+            stringPrinter(keys[i-1], 6);
+            printf("\n");
+        //}
     }
 }
 
-void keyGenerator(char keyWords12[MAXKEYLENGTH]) {
+void keyGenerator(char keyWords12[MAXKEYLENGTH], int verbose) {
     permuteMatrix PC1M, PC2M;
-    keypermuteMatrixInitializer(&PC1M, &PC2M);
-
-    char loadBearingVariablethatisNeverusedandnamedoesntmatter12342312jsdfsdfnasfb[MAXKEYLENGTH]; // LOAD BEARING VARIABLE DONOT DELETE, I CAN"T SEEM TO DELETE IT, SEND HELP
-
-    // Allocate memory for the message structure
+    char C[ROUNDS+1][29], D[ROUNDS+1][29], keys[ROUNDS+1][57];
     char *binaryKey=malloc(MAXKEYLENGTH * sizeof(char)), *binaryKeyplus=malloc(MAXKEYLENGTH * sizeof(char));
 
+    // 🌿 Initialize the Arrays into the Data Structure
+    keypermuteMatrixInitializer(&PC1M, &PC2M);
+
+    // 🌿 Convert the Hexadecimal Key to Binary Key Result=64bit
     plainTextToMessage(binaryKey, keyWords12);
-    printf("K=");
-    stringPrinter(binaryKey, 8);
+
+    // Print the key
+        if (verbose) {
+            printf("K=");
+            stringPrinter(binaryKey, 8);
+        }
     
+    // 🌿 Permute the Key against PC1 Result=56bit
     permutedString(binaryKey, binaryKeyplus, PC1M);
-    printf("K+=");
-    stringPrinter(binaryKeyplus, 7);
 
-    char C[ROUNDS][29], D[ROUNDS][29], keys[ROUNDS][57];
+    // Print the permuted Key
+        if (verbose) {
+            printf("K+=");
+            stringPrinter(binaryKeyplus, 7);
+        }
+
+    // 🌿 Divide the Key to C and D havles Result=28 bit each
     messageSplitter(binaryKeyplus, C[0], D[0]);
-    printf("\n C0 : %s \n D0 : %s", C[0], D[0]);
 
-    scheduledLeftShifts(C, D);
-    permuteShiftedKeys(C, D, keys, &PC2M);
+    // 🌿 Individually Circular Left shift on C and D
+    scheduledLeftShifts(C, D, verbose);
+
+    // 🌿 Merge and Permute the key finally against PC2 Res=48 bit
+    permuteShiftedKeys(C, D, keys, &PC2M, verbose);
 
     // Freeing 
     free(binaryKey);
@@ -124,8 +150,9 @@ void keyGenerator(char keyWords12[MAXKEYLENGTH]) {
 }
 
 int main() {
-    char keyWord123[MAXKEYLENGTH];
-    strcpy(keyWord123,"133457799BBCDEF1");
-    keyGenerator(keyWord123); 
+    char keyWord123[MAXKEYLENGTH]="133457799BBCDEF1";
+    int verbose =0;
+    
+    keyGenerator(keyWord123, verbose); 
     return 0;
 }

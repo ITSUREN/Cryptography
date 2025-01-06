@@ -1,4 +1,4 @@
-#define MAXKEYLENGTH 64
+#define MAXKEYLENGTH 65
 #define MAXMATSIZE 8
 
 typedef struct {
@@ -59,5 +59,5 @@ void primaryKeyAppender(char *output, char *binaryGroup) {
     for (int i = 0; i < 4; i++) {
         output[pointer++] = binaryGroup[i];
     }
-    output[pointer] = '\0'; 
+    output[pointer] = 0; 
 }
