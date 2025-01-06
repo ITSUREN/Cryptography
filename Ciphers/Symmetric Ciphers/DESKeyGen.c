@@ -2,16 +2,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../Modules/DESModules.c"
-#include "../Modules/DESData.c"
+#include "../Modules/DESKeyGenData.c"
 
-#define ROUNDS 16
+#define SPLITLENGTH 28
+#define PERMUTEDLENGTH 56
 
-void keypermuteMatrixInitializer(permuteMatrix *PC1M, permuteMatrix *PC2M) {
+void keyPermuteMatrixInitializer(permuteMatrix *PC1M, permuteMatrix *PC2M) {
     PC1M->Column = 7; PC1M->Row = 8;
     PCCopier(PC1M, PC1);
 
     PC2M->Column = 6; PC2M->Row = 8;
     PCCopier(PC2M, PC2);
+}
+
+void primaryKeyAppender(char *output, char *binaryGroup) {
+    if (output == NULL || binaryGroup == NULL) return;
+    int pointer = strlen(output);
+    for (int i = 0; i < 4; i++) {
+        output[pointer++] = binaryGroup[i];
+    }
+    output[pointer] = 0; 
 }
 
 void plainTextToMessage(char *output, char *plainText) {
@@ -69,7 +79,7 @@ void leftShiftCircularDual(char *input1, char *input2, int times) {
     leftShiftCircular(input2,times);
 }
 
-void scheduledLeftShifts(char C[ROUNDS+1][29], char D[ROUNDS+1][29], int verbose) {
+void scheduledLeftShifts(char C[ROUNDS+1][SPLITLENGTH+1], char D[ROUNDS+1][SPLITLENGTH+1], int verbose) {
     // Print the First Key that does not require permuting
         if (verbose) {
             printf("\n C0 : %s \n D0 : %s", C[0], D[0]);
@@ -82,9 +92,9 @@ void scheduledLeftShifts(char C[ROUNDS+1][29], char D[ROUNDS+1][29], int verbose
 
         // To print the split Key
             if (verbose) {
-                printf("\n C%-2d: ", i);
+                printf("\n C%02d: ", i);
                 stringPrinter(C[i],0);
-                printf("\n D%-2d: ", i);
+                printf("\n D%02d: ", i);
                 stringPrinter(D[i], 0);
             }
     }
@@ -92,8 +102,8 @@ void scheduledLeftShifts(char C[ROUNDS+1][29], char D[ROUNDS+1][29], int verbose
         verbose? printf("\n"): (void)0;
 }
 
-void permuteShiftedKeys(char C[ROUNDS+1][29], char D[ROUNDS+1][29],char keys[ROUNDS+1][57], permuteMatrix *PC2M, int verbose) {
-    char temp[ROUNDS+1][57];
+void permuteShiftedKeys(char C[ROUNDS+1][SPLITLENGTH+1], char D[ROUNDS+1][SPLITLENGTH+1],char keys[ROUNDS+1][PERMUTEDLENGTH+1], permuteMatrix *PC2M, int verbose) {
+    char temp[ROUNDS+1][PERMUTEDLENGTH+1];
     for (int i=1; i <= ROUNDS; i++) {
         messageMerger(C[i], D[i], keys[i-1]);
 
@@ -102,23 +112,23 @@ void permuteShiftedKeys(char C[ROUNDS+1][29], char D[ROUNDS+1][29],char keys[ROU
         strcpy(keys[i-1], temp[i-1]);
 
         //if (verbose) {
-            printf("Keys[%-2d]:",i);
+            printf("Keys[%02d]:",i);
             stringPrinter(keys[i-1], 6);
             printf("\n");
         //}
     }
 }
 
-void keyGenerator(char keyWords12[MAXKEYLENGTH], int verbose) {
+void keyGenerator(char keysOutput[ROUNDS+1][PERMUTEDLENGTH+1], int verbose) {
     permuteMatrix PC1M, PC2M;
-    char C[ROUNDS+1][29], D[ROUNDS+1][29], keys[ROUNDS+1][57];
-    char *binaryKey=malloc(MAXKEYLENGTH * sizeof(char)), *binaryKeyplus=malloc(MAXKEYLENGTH * sizeof(char));
+    char C[ROUNDS+1][SPLITLENGTH+1], D[ROUNDS+1][SPLITLENGTH+1];
+    char *binaryKey=malloc((MAXKEYLENGTH+1) * sizeof(char)), *binaryKeyplus=malloc(MAXKEYLENGTH+1 * sizeof(char));
 
     // 🌿 Initialize the Arrays into the Data Structure
-    keypermuteMatrixInitializer(&PC1M, &PC2M);
+    keyPermuteMatrixInitializer(&PC1M, &PC2M);
 
     // 🌿 Convert the Hexadecimal Key to Binary Key Result=64bit
-    plainTextToMessage(binaryKey, keyWords12);
+    plainTextToMessage(binaryKey, keyWord);
 
     // Print the key
         if (verbose) {
@@ -132,7 +142,7 @@ void keyGenerator(char keyWords12[MAXKEYLENGTH], int verbose) {
     // Print the permuted Key
         if (verbose) {
             printf("K+=");
-            stringPrinter(binaryKeyplus, 7);
+            stringPrinter(binaryKeyplus, PC1M.Column);
         }
 
     // 🌿 Divide the Key to C and D havles Result=28 bit each
@@ -142,7 +152,7 @@ void keyGenerator(char keyWords12[MAXKEYLENGTH], int verbose) {
     scheduledLeftShifts(C, D, verbose);
 
     // 🌿 Merge and Permute the key finally against PC2 Res=48 bit
-    permuteShiftedKeys(C, D, keys, &PC2M, verbose);
+    permuteShiftedKeys(C, D, keysOutput, &PC2M, verbose);
 
     // Freeing 
     free(binaryKey);
@@ -150,9 +160,9 @@ void keyGenerator(char keyWords12[MAXKEYLENGTH], int verbose) {
 }
 
 int main() {
-    char keyWord123[MAXKEYLENGTH]="133457799BBCDEF1";
     int verbose =0;
+    char keys[ROUNDS+1][PERMUTEDLENGTH+1];
     
-    keyGenerator(keyWord123, verbose); 
+    keyGenerator(keys,verbose); 
     return 0;
 }

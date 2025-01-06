@@ -1,5 +1,6 @@
-#define MAXKEYLENGTH 65
+#define MAXKEYLENGTH 64
 #define MAXMATSIZE 8
+#define ROUNDS 16
 
 typedef struct {
     int PC[MAXMATSIZE][MAXMATSIZE];
@@ -51,13 +52,4 @@ void PCCopier(permuteMatrix *PM, int source[][MAXMATSIZE]) {
             PM->PC[i][j] = source[i][j];
         }
     }
-}
-
-void primaryKeyAppender(char *output, char *binaryGroup) {
-    if (output == NULL || binaryGroup == NULL) return;
-    int pointer = strlen(output);
-    for (int i = 0; i < 4; i++) {
-        output[pointer++] = binaryGroup[i];
-    }
-    output[pointer] = 0; 
 }
