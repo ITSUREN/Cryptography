@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../Modules/DESModules.c"
-#include "../Modules/DESEncodeData.c"
+#include "../Modules/DESEncryptData.c"
 #include "./DESKeyGen.c"
 
 void encodeProcessorPermuteMatrixInitializer(permuteMatrix *IPInvM, permuteMatrix *EMM, permuteMatrix *PMM) {
