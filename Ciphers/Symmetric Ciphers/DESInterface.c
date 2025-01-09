@@ -34,7 +34,7 @@ void asciiMessageToHexConverter(char asciiMessage[MESSAGESIZE+1], char hexOutput
     }
 }
 
-void hexMessageToASCIIConverter(char hexMessage[2 * MESSAGESIZE + 1], char asciiOutput[MESSAGESIZE + 1]) {
+void hexMessageToASCIIConverter(char hexMessage[2*MESSAGESIZE+1], char asciiOutput[MESSAGESIZE+1]) {
     char hexaGroups[2 + 1], asciiCharacter;
     int insertGroupPointer = 0, insertOutputPointer = 0;
     for (int i = 0; i < strlen(hexMessage); i++) {
@@ -56,46 +56,46 @@ void hexMessageToASCIIConverter(char hexMessage[2 * MESSAGESIZE + 1], char ascii
 }
 
 void hexMessageParser(char hexMessage[2*MESSAGESIZE+1], char output[2*MESSAGESIZE+1], int verbose, int keysVerbose, int decrypt) {
-    char hexMessageBlock[16+1]={0}, hexCipherBlock[16+1]={0};
-    int insertBlockPointer=0;
+    char hexMessageBlock[16+1] = {0}, hexCipherBlock[16+1] = {0};
+    int insertBlockPointer = 0;
 
-    for (int i = 0; i < hexMessage[i]!=0; i++) {
-        hexMessageBlock[insertBlockPointer]=hexMessage[i];
+    for (int i = 0; hexMessage[i] != 0; i++) {
+        hexMessageBlock[insertBlockPointer] = hexMessage[i];
         insertBlockPointer++;
 
-        if (insertBlockPointer==16) {
-            hexMessageBlock[16]=0;
-            insertBlockPointer=0;
+        if (insertBlockPointer == 16) {
+            hexMessageBlock[16] = 0;
+            insertBlockPointer = 0;
 
             encryptorDecryptor(hexMessageBlock, hexCipherBlock, verbose, keysVerbose, decrypt);
             strcat(output, hexCipherBlock);
             memset(hexMessageBlock, 0, sizeof(hexMessageBlock));
         }
     }
-    
-    if (strlen(hexMessageBlock)!=0) {
+
+    if (strlen(hexMessageBlock) != 0) {
         for (int i = strlen(hexMessageBlock); i < 16; i += 2) {
             hexMessageBlock[i] = '8';
             hexMessageBlock[i + 1] = '0';
         }
 
-        hexMessageBlock[16]=0;
+        hexMessageBlock[16] = 0;
 
         encryptorDecryptor(hexMessageBlock, hexCipherBlock, verbose, keysVerbose, decrypt);
         strcat(output, hexCipherBlock);
     }
 }
 
-int main(){
+int main() {
     char userMessage[MESSAGESIZE+1]={0}, hexUserMessage[2*MESSAGESIZE+1]={0}, hexCipherMessage[2*MESSAGESIZE+1]={0};
     char returnedMessage[2*MESSAGESIZE+1]={0}, finalMessage[MESSAGESIZE+1]={0};
-    int verbose =0, keysVerbose=0, decrypt=0;
+    int verbose = 0, keysVerbose = 0, decrypt = 0;
 
     printf("Enter a string: ");
     fgets(userMessage, sizeof(userMessage), stdin);
     //userMessage[strcspn(userMessage, "\n")] = '\0'; // Remove trailing newline
 
-    printf("\n Plain: %s\n", userMessage);
+    printf("\n Plain: %s", userMessage);
 
     asciiMessageToHexConverter(userMessage, hexUserMessage);
     printf("\n Hex Message: ");
