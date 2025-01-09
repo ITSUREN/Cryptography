@@ -24,11 +24,18 @@ void messageHalfSplitter(char *input, char *output1, char *output2) {
     output2[strlen(input)/2]=0;
 }
 
-void messageHalvesMerger(char *input1, char *input2, char *output) {
-    strcpy(output, input1);
-    strcat(output, input2);
-    output[strlen(input1)+strlen(input2)]='\0';
+void messageHalvesMerger(const char *left, const char *right, char *output) {
+    size_t leftLen = strlen(left);
+    size_t rightLen = strlen(right);
+
+    // Ensure no overlap issues by using memmove
+    memmove(output, left, leftLen);
+    memmove(output + leftLen, right, rightLen);
+
+    // Null-terminate the output string
+    output[leftLen + rightLen] = '\0';
 }
+
 
 void leftShiftCircular(char *input, int times) {
     for (int j=0; j<times; j++) {
