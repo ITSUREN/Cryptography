@@ -168,7 +168,7 @@ void processor(char L[ROUNDS+1][SPLITMESSAGELENGTH+1], char R[ROUNDS+1][SPLITMES
 }
 
 
-void encryptor(char *cipherOutput, int verbose, int keysVerbose) {
+void encryptor(char cipherOutput[16+1], int verbose, int keysVerbose) {
     permuteMatrix IPM;
     char keys[ROUNDS+1][PERMUTEDLENGTH+1];
     char L[ROUNDS+1][SPLITMESSAGELENGTH+1], R[ROUNDS+1][SPLITMESSAGELENGTH+1];
@@ -216,11 +216,15 @@ void encryptor(char *cipherOutput, int verbose, int keysVerbose) {
     
     // 🌿 Convert binary Cipher to Hexadecimal Cipher
     binaryKeyToHexadecimalResult(binaryResult, cipherOutput);
+
+    // Freeing 
+    free(binaryMessage);
+    free(binaryMessagePlus);
 }
 
 int main() {
     int verbose =0, keysVerbose=1;
-    char *cipherOutput;
+    char cipherOutput[16+1];
 
     encryptor(cipherOutput, verbose, keysVerbose);
 
