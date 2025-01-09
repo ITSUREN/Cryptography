@@ -1,4 +1,5 @@
-char messagePlain[MAXKEYLENGTH+1]="0123456789ABCDEF";
+char messageExamplePlain[16+1]="0123456789ABCDEF";
+char messageExampleCipher[16+1]="85E813540F0AB405"; // from Encrypt Output
 
 int IP[MAXMATSIZE][MAXMATSIZE]= {
     { 58, 50, 42, 34, 26, 18, 10, 2},

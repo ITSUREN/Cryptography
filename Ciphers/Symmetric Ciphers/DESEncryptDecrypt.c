@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "../Modules/DESModules.c"
 #include "../Modules/DESEncryptData.c"
 #include "./DESKeyGen.c"
-
-char messageCipher[MAXKEYLENGTH+1]="85E813540F0AB405"; // from Encrypt Output
 
 void encodeProcessorPermuteMatrixInitializer(permuteMatrix *IPInvM, permuteMatrix *EMM, permuteMatrix *PMM) {
     IPInvM->Column = MAXMATSIZE; IPInvM->Row = MAXMATSIZE;
@@ -182,7 +176,7 @@ void keysReverser(char keys[ROUNDS+1][PERMUTEDLENGTH+1]) {
 }
 
 
-void encryptor(char plainOutput[16+1], int verbose, int keysVerbose) {
+void encryptorDecryptor(char message[16+1], char messageOutput[16+1], int verbose, int keysVerbose, int decrypt) {
     permuteMatrix IPM;
     char keys[ROUNDS+1][PERMUTEDLENGTH+1];
     char L[ROUNDS+1][SPLITMESSAGELENGTH+1], R[ROUNDS+1][SPLITMESSAGELENGTH+1];
@@ -195,23 +189,25 @@ void encryptor(char plainOutput[16+1], int verbose, int keysVerbose) {
     // 🌿 Generate the Keys necessary for encoding: 48 bits each
     keyGenerator(keys,verbose, keysVerbose); 
 
-    // 🌿 Reverse the order of Keys
-    keysReverser(keys);
-    if (keysVerbose) {
-        for (int i=0; i < ROUNDS; i++) {
-            printf("\n Reversed keys[%02d]: %s", i, keys[i]);
+    if (decrypt) {
+        // 🌿 Reverse the order of Keys
+        keysReverser(keys);
+        if (keysVerbose) {
+            for (int i=0; i < ROUNDS; i++) {
+                printf("\n Reversed keys[%02d]: %s", i, keys[i]);
+            }
         }
     }
 
     // 🌿 Convert the message to binary: 64 bits 
-    plainTextToMessage(messageCipher, binaryMessage);
+    plainTextToMessage(message, binaryMessage);
 
     // Prints the Binarry form of the message
         if (verbose || keysVerbose) {
             printf("\n\n");
+            printf("M:");
+            stringPrinter(binaryMessage, 4);
         }
-        printf("M:");
-        stringPrinter(binaryMessage, 4);
 
     // 🌿 Initial Permuation with the IP Permute Matrix: 64 bit
     permutedString(binaryMessage, binaryMessagePlus, IPM);
@@ -237,19 +233,9 @@ void encryptor(char plainOutput[16+1], int verbose, int keysVerbose) {
         }
     
     // 🌿 Convert binary Cipher to Hexadecimal Cipher
-    binaryKeyToHexadecimalResult(binaryResult, plainOutput);
+    binaryKeyToHexadecimalResult(binaryResult, messageOutput);
 
     // Freeing 
     free(binaryMessage);
     free(binaryMessagePlus);
-}
-
-int main() {
-    int verbose =0, keysVerbose=1;
-    char plainOutput[16+1];
-
-    encryptor(plainOutput, verbose, keysVerbose);
-
-    printf("\nHexResult:%s\n", plainOutput);
-    return 0;
 }
