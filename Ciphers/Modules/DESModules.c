@@ -49,7 +49,7 @@ char binHexToHexGroup(char binHexKey[4+1]) {
             return hex[i];
         }
     }   
-    fprintf(stderr, "[ERR 01] Invalid binary hex key: %c\n", binHexKey);
+    fprintf(stderr, "[ERR 01] Invalid binary hex key: %s\n", binHexKey);
     return 'X';
 }
 

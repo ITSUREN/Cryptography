@@ -140,7 +140,7 @@ void processor(char L[ROUNDS+1][SPLITMESSAGELENGTH+1], char R[ROUNDS+1][SPLITMES
                 printf("\n Expanded R[%d]:", i-1);
                 stringPrinter(extendedR, 6);
 
-                printf("\n XOR Result:", i);
+                printf("\n XOR Result:");
                 stringPrinter(firstXOR, 6);
                 printf("\n Key used: %s", keys[i-1]);
 
