@@ -5,7 +5,7 @@
 #define MAXLENGTH 100
 #define SHIFTUNIT 3
 
-void ceasarCipher(char input[100], char output[100]) {
+void ceasarCipher(char input[MAXLENGTH], char output[MAXLENGTH]) {
     char normalized, add3, modded, restored;
     for (int i=0; i < strlen(input); i++) {
         if (input[i]>='a' && input[i]<='z') {

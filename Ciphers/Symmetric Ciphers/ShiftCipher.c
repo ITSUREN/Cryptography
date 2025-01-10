@@ -4,7 +4,7 @@
 
 #define MAXLENGTH 100
 
-void transpositer(char input[100], char output[100], int shiftunit) {
+void transpositer(char input[MAXLENGTH], char output[MAXLENGTH], int shiftunit) {
     char normalized, add3, modded, restored;
     for (int i=0; i < strlen(input); i++) {
         if (input[i]>='a' && input[i]<='z') {
@@ -28,7 +28,7 @@ void transpositer(char input[100], char output[100], int shiftunit) {
 }
 
 int main() {
-    char plainText[MAXLENGTH+1] = {0}, cipherText[MAXLENGTH+1] = {0}, shiftInput[3];
+    char plainText[MAXLENGTH+1] = {0}, cipherText[MAXLENGTH+1] = {0}, shiftInput[2+1]; // 1 for character, 1 forn new string and 1 for '\0'
     int shiftUnit=0;
 
     printf(" Enter the number of shifts: ");
